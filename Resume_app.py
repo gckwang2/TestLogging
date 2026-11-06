@@ -32,6 +32,7 @@ def get_llm():
     return ChatGoogleGenerativeAI(
         model="gemini-3-flash-preview", 
         google_api_key=st.secrets["GOOGLE_API_KEY"],
+        api_version="v1beta", # Forces the preview endpoint
         temperature=0 
     )
 
@@ -39,6 +40,7 @@ def get_llm():
 def get_embeddings_model():
     return GoogleGenerativeAIEmbeddings(
         model="gemini-embedding-001", 
+        api_version="v1beta" # Keep embeddings on the same endpoint
         google_api_key=st.secrets["GOOGLE_API_KEY"]
     )
 
