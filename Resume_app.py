@@ -16,7 +16,7 @@ mlflow.set_tracking_uri("databricks")
 
 # Set a central experiment path in Databricks to store these traces
 # You can update this path to your specific Databricks user directory
-mlflow.set_experiment("/Shared/Freddy_Resume_App_Traces")
+mlflow.set_experiment("/Users/gckwang03@gmail.com/ResumeTraces")   
 
 # Optional: Autolog LangChain internal steps for deeper debugging
 mlflow.langchain.autolog()
