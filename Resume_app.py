@@ -40,8 +40,8 @@ def get_llm():
 def get_embeddings_model():
     return GoogleGenerativeAIEmbeddings(
         model="gemini-embedding-001", 
+        google_api_key=st.secrets["GOOGLE_API_KEY"],
         api_version="v1beta" # Keep embeddings on the same endpoint
-        google_api_key=st.secrets["GOOGLE_API_KEY"]
     )
 
 # --- 3. THE CLEANER ---
