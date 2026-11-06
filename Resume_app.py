@@ -30,7 +30,7 @@ st.caption("Agentic RAG | Zilliz Cloud Vector Search | Gemini 3.0 Flash Preview"
 @st.cache_resource(show_spinner=False)
 def get_llm():
     return ChatGoogleGenerativeAI(
-        model="gemini-3-flash-preview", 
+        model="gemini-3.8-flash", 
         google_api_key=st.secrets["GOOGLE_API_KEY"],
         temperature=0 
     )
