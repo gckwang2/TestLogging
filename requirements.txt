@@ -16,3 +16,4 @@ langchain-milvus
 langchain>=0.3.0
 nest-asyncio
 mlflow
+mlflow[databricks]>=2.20.0
