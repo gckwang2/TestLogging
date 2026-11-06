@@ -1,3 +1,4 @@
+import time
 import nest_asyncio
 nest_asyncio.apply()
 import streamlit as st
@@ -167,3 +168,9 @@ if prompt := st.chat_input("Ask about Freddy's potential..."):
                 
                 st.markdown(answer)
                 st.session_state.messages.append({"role": "assistant", "content": answer})
+
+
+
+
+
+time.sleep(1)
