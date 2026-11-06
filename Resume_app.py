@@ -5,6 +5,7 @@ import requests
 import json
 import os
 import mlflow
+import uuid  # Added for generating a unique session ID
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 
 # --- MLflow & Databricks Configuration ---
@@ -54,6 +55,10 @@ def extract_clean_text(response):
     return str(content)
 
 # --- 4. Initialization ---
+# Generate a unique Session ID for tracing and initialize chat history
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant", "content": "I am Freddy's Assistant. I've analyzed his 20+ years of experience. How can I help you today?"}
@@ -83,7 +88,9 @@ if prompt := st.chat_input("Ask about Freddy's potential..."):
         
         # Start a custom MLflow Span to track the human-readable text
         with mlflow.start_span(name="Career_Advocate_Workflow") as span:
-            # 1. Trace User Prompt
+            
+            # 1. Trace Session ID & User Prompt
+            span.set_attribute("session_id", st.session_state.session_id)
             span.set_inputs({"user_prompt": prompt})
             
             # PHASE 1: Agent Research Plan
@@ -132,8 +139,8 @@ if prompt := st.chat_input("Ask about Freddy's potential..."):
             # PHASE 3: Synthesis & Advocacy
             context_str = "\n\n".join(list(set(accumulated_context)))
             
-            # 2. Trace Retrieved Context
-            span.set_attribute("retrieved_zilliz_context", context_str)
+            # 2. Trace Retrieved Result from Zilliz
+            span.set_attribute("zilliz_retrieved_results", context_str)
             
             final_agent_prompt = f"""
                     ROLE: You are Freddy Goh's "Career Advocate." 
@@ -146,15 +153,15 @@ if prompt := st.chat_input("Ask about Freddy's potential..."):
             Do not show any metadata, JSON, or technical signatures.
             """
             
-            # 3. Trace Final Prompt sent to LLM
-            span.set_attribute("final_llm_prompt", final_agent_prompt)
+            # 3. Trace Prompt and Retrieved text into LLM
+            span.set_attribute("llm_input_prompt", final_agent_prompt)
 
             with st.spinner("⚖️ Synthesizing recommendation..."):
                 final_res = llm.invoke(final_agent_prompt)
                 answer = extract_clean_text(final_res)
                 
-                # 4. Trace the Final Output
-                span.set_outputs({"generated_answer": answer})
+                # 4. Trace LLM Response Output
+                span.set_outputs({"llm_response": answer})
                 
                 st.markdown(answer)
                 st.session_state.messages.append({"role": "assistant", "content": answer})
