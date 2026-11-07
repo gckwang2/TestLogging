@@ -20,6 +20,17 @@ def save_feed(url):
         return True
     return False
 
+def remove_feed(url):
+    """Removes an RSS URL from the file."""
+    feeds = get_saved_feeds()
+    if url in feeds:
+        feeds.remove(url)
+        with open(FEED_FILE, "w") as f:
+            for feed in feeds:
+                f.write(f"{feed}\n")
+        return True
+    return False
+
 @st.cache_data(ttl=1800, show_spinner=False) 
 def fetch_feed_data(url):
     """Fetches and extracts simple strings from the RSS feed for safe Streamlit caching."""
@@ -77,5 +88,16 @@ def render_rss_sidebar():
                 with st.sidebar.expander(f"📌 {feed_title}", expanded=False):
                     for entry in feed_data['entries']:
                         st.markdown(f"- [{entry['title']}]({entry['link']})")
+                    
+                    st.divider()
+                    # Cancel button using the URL as a unique Streamlit key
+                    if st.button("❌ Unsubscribe", key=f"unsub_{url}", use_container_width=True):
+                        remove_feed(url)
+                        st.rerun()
             else:
-                st.sidebar.error(f"Failed to load: {url}")
+                # Fallback UI if the feed is broken, ensuring it can still be deleted
+                with st.sidebar.expander(f"⚠️ Failed to load feed", expanded=False):
+                    st.error(url)
+                    if st.button("❌ Remove broken feed", key=f"unsub_err_{url}", use_container_width=True):
+                        remove_feed(url)
+                        st.rerun()
