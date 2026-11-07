@@ -7,6 +7,7 @@ import os
 import mlflow
 import uuid
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+import time
 
 # Import the new RSS module
 from rss_reader import render_rss_sidebar
@@ -157,3 +158,6 @@ if prompt := st.chat_input("Ask about Freddy's potential..."):
                 
                 st.markdown(answer)
                 st.session_state.messages.append({"role": "assistant", "content": answer})
+
+
+time.sleep(2) # --- 7. Force Streamlit to wait for MLflow trace upload ---
