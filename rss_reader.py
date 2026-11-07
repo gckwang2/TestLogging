@@ -20,10 +20,29 @@ def save_feed(url):
         return True
     return False
 
-@st.cache_data(ttl=1800) # Caches the RSS fetch for 30 minutes
+@st.cache_data(ttl=1800, show_spinner=False) 
 def fetch_feed_data(url):
-    """Fetches and parses the RSS feed."""
-    return feedparser.parse(url)
+    """Fetches and extracts simple strings from the RSS feed for safe Streamlit caching."""
+    parsed = feedparser.parse(url)
+    
+    # If the feed failed to load completely
+    if not getattr(parsed, 'entries', None):
+        return None
+        
+    feed_title = parsed.feed.get('title', 'Unknown Feed')
+    
+    # Extract only the primitive strings we need (safe for PyArrow serialization)
+    entries = []
+    for entry in parsed.entries[:5]:
+        entries.append({
+            "title": entry.get("title", "No Title"),
+            "link": entry.get("link", url)
+        })
+        
+    return {
+        "title": feed_title,
+        "entries": entries
+    }
 
 def render_rss_sidebar():
     """Renders the RSS reader interface inside the Streamlit sidebar."""
@@ -52,12 +71,11 @@ def render_rss_sidebar():
         for url in feeds:
             feed_data = fetch_feed_data(url)
             
-            # Check if the feed is valid and has entries
-            if feed_data and getattr(feed_data, 'entries', None):
-                feed_title = feed_data.feed.get('title', 'Unknown Feed')
+            # Consume the simplified dictionary returned by the cached function
+            if feed_data and feed_data.get('entries'):
+                feed_title = feed_data['title']
                 with st.sidebar.expander(f"📌 {feed_title}", expanded=False):
-                    # Display the top 5 most recent articles
-                    for entry in feed_data.entries[:5]:
-                        st.markdown(f"- [{entry.title}]({entry.link})")
+                    for entry in feed_data['entries']:
+                        st.markdown(f"- [{entry['title']}]({entry['link']})")
             else:
                 st.sidebar.error(f"Failed to load: {url}")
