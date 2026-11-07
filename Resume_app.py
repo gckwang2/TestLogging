@@ -15,7 +15,7 @@ from rss_reader import render_rss_sidebar
 os.environ["DATABRICKS_HOST"] = st.secrets["DATABRICKS_URL"]
 os.environ["DATABRICKS_TOKEN"] = st.secrets["DATABRICKS_TOKEN"]
 mlflow.set_tracking_uri("databricks")
-mlflow.set_experiment("/Users/freddy.goh@your-email.com/Freddy_Resume_App_Traces") # Ensure this is your actual path
+mlflow.set_experiment("/Users/gckwang03@gmail.com/Freddy_Resume_App_Traces") # Ensure this is your actual path
 mlflow.langchain.autolog()
 
 # --- 1. Page Config ---
